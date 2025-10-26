@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 int main(){
     int rejim, count_popitok = 0;
@@ -8,7 +9,7 @@ int main(){
     scanf("%d", &rejim);
     
     if (rejim == 1){
-
+        srand(time(NULL));
         int random_number = rand() % 1001, chislo_polzovatelya;
         
         printf("Vvedite zagadannoe chislo;)\n");
