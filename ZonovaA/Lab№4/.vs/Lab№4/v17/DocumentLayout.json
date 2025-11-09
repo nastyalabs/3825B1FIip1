@@ -1,0 +1,37 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\admin\\Desktop\\zonova\\3825B1FIip1\\ZonovaA\\Lab\u21164\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{113B121E-444D-460D-8D5A-4C1B162DE412}|Lab\u21164.vcxproj|C:\\Users\\admin\\Desktop\\zonova\\3825B1FIip1\\ZonovaA\\Lab\u21164\\lab4.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{113B121E-444D-460D-8D5A-4C1B162DE412}|Lab\u21164.vcxproj|solutionrelative:lab4.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "lab4.c",
+              "DocumentMoniker": "C:\\Users\\admin\\Desktop\\zonova\\3825B1FIip1\\ZonovaA\\Lab\u21164\\lab4.c",
+              "RelativeDocumentMoniker": "lab4.c",
+              "ToolTip": "C:\\Users\\admin\\Desktop\\zonova\\3825B1FIip1\\ZonovaA\\Lab\u21164\\lab4.c",
+              "RelativeToolTip": "lab4.c",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMBAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-11-09T10:19:27.412Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
