@@ -1,0 +1,6 @@
+﻿  lab3.c
+C:\Users\admin\Desktop\Программирование\Lab№3\lab3.c(12,2): warning C4013: srand: нет определения; предполагается "extern" с возвратом типа "int"
+C:\Users\admin\Desktop\Программирование\Lab№3\lab3.c(14,8): warning C4477: "scanf": в строке форматирования "%d" требуется аргумент типа "int *", но вариативный аргумент "1" имеет тип "const int *"
+C:\Users\admin\Desktop\Программирование\Lab№3\lab3.c(20,9): warning C4477: "scanf": в строке форматирования "%d" требуется аргумент типа "int *", но вариативный аргумент "1" имеет тип "const int *"
+C:\Users\admin\Desktop\Программирование\Lab№3\lab3.c(27,15): warning C4013: rand: нет определения; предполагается "extern" с возвратом типа "int"
+  Lab№3.vcxproj -> C:\Users\admin\Desktop\Программирование\Lab№3\x64\Debug\Lab№3.exe
