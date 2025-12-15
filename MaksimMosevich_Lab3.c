@@ -56,8 +56,11 @@ void sravnenie_chisel(int zagadannoe_chislo, int chislo_polz, int n){
 void main(){
     int n, chislo_polz;
     
-    printf("Vvedite dlinu zagadimavaemogo slova\n");
-    scanf("%d", &n);
+   
+    do{
+         printf("Vvedite dlinu zagadimavaemogo slova(2 <= n <= 5\n");
+        scanf("%d", &n);
+    }while(n < 2 || n > 5);
 
     srand(time(NULL));
     int min_chislo = vozvesti_v_stepen(10, n-1);
