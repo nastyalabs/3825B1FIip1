@@ -54,7 +54,6 @@ int main() {
             cena(n);
         }
     }
-
     printf("Ваш чек:\n");
     for (int k = 0; k < 9; k++) {
         if (counts[k] > 0) {
@@ -71,9 +70,6 @@ int main() {
             }
         }
     }
-
-
     printf("Итого: %d руб.\n", sum);
-
     return 0;
 }
