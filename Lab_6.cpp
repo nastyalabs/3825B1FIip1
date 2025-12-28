@@ -1,147 +1,195 @@
-#include <stdio.h>
-#include <math.h>
+п»ї#include <stdio.h>
 #include <locale.h>
-
-
-typedef double (*MathFunc)(double);
-double my_sin(double x) { return sin(x); }
-double my_cos(double x) { return cos(x); }
-double my_exp(double x) { return exp(x); }
-double my_ln(double x) { return log(x+1); }
-
-typedef struct {
-	double value;
-	int iterations;
-} Result;
-typedef Result(*TaylorFunc)(double x, double acc, int N);
-
-
-Result t_sin(double x, double acc, int N) {
-	double summ = x;
-	double a = x;
-	int k=1;
-	for (int i = 1; i < N; i++) {
-		a = -a * x*x / (2 * i) / (2 * i + 1);
-		if (fabs(a) < acc && acc != 1) {
-			k += i;
-			break;
-		}
-		summ += a;
-	}
-	Result res = { summ, k };
-	return res;
+#include <math.h>
+#include <stdlib.h>
+#define PI 3.14159265358979323846
+// РџСЂРѕС‚РѕС‚РёРїС‹ С„СѓРЅРєС†РёР№
+unsigned long long factorial(int number);
+double taylor_sin(double x, double epsilon, int N, int* used_attempt);
+double taylor_cos(double x, double epsilon, int N, int* used_attempt);
+double taylor_exp(double x, double epsilon, int N, int* used_attempt);
+double taylor_arccos(double x, double epsilon, int N, int* used_attempt);
+void print_menu(void);
+// Р¤Р°РєС‚РѕСЂРёР°Р»
+unsigned long long factorial(int number) {
+    unsigned long long result = 1;
+    for (int i = 2; i <= number; i++) {
+        result *= i;
+    }
+    return result;
 }
-
-Result t_cos(double x, double acc, int N) {
-	double summ = 1;
-	double a = 1;
-	int k=1;
-	for (int i = 1; i < N; i++) {
-		a = -a * x * x / (2 * i) / (2 * i - 1);
-		if (fabs(a) < acc && acc != 1) {
-			k += i;
-			break;
-		}
-		summ += a;
-	}
-	Result res = { summ, k };
-	return res;
+// Р СЏРґ РўРµР№Р»РѕСЂР° РґР»СЏ sin(x)
+double taylor_sin(double x, double epsilon, int N, int* used_attempt) {
+    double sum = 0.0;
+    double term = x; // РїРµСЂРІС‹Р№ С‡Р»РµРЅ СЂСЏРґР°
+    int n = 0;
+    // РџСЂРёРІРµРґРµРЅРёРµ x Рє РёРЅС‚РµСЂРІР°Р»Сѓ [-ПЂ, ПЂ] РґР»СЏ Р»СѓС‡С€РµР№ СЃС…РѕРґРёРјРѕСЃС‚Рё
+    while (x > PI) x -= 2 * PI;
+    while (x < -PI) x += 2 * PI;
+    term = x; // РѕР±РЅРѕРІР»СЏРµРј РїРµСЂРІС‹Р№ С‡Р»РµРЅ
+    for (n = 0; n < N; n++) {
+        sum += term;
+        if (fabs(term) < epsilon && n > 0) break;
+        // Р РµРєСѓСЂСЂРµРЅС‚РЅРѕРµ РІС‹С‡РёСЃР»РµРЅРёРµ СЃР»РµРґСѓСЋС‰РµРіРѕ С‡Р»РµРЅР°
+        term = -term * x * x / ((2 * n + 2) * (2 * n + 3));
+    }
+    *used_attempt = n + 1;
+    return sum;
 }
-
-Result t_exp(double x, double acc, int N) {
-	double summ = 1;
-	double a = 1;
-	int k = 1;
-	for (int i = 1; i < N; i++) {
-		a = a * x / (i);
-		if (fabs(a) < acc && acc != 1) {
-			k += i;
-			break;
-		}
-		summ += a;
-	}
-	Result res = { summ, k };
-	return res;
+// Р СЏРґ РўРµР№Р»РѕСЂР° РґР»СЏ cos(x)
+double taylor_cos(double x, double epsilon, int N, int* used_attempt) {
+    double sum = 0.0;
+    double term = 1.0; // РїРµСЂРІС‹Р№ С‡Р»РµРЅ СЂСЏРґР°
+    int n = 0;
+    // РџСЂРёРІРµРґРµРЅРёРµ x Рє РёРЅС‚РµСЂРІР°Р»Сѓ [-ПЂ, ПЂ]
+    while (x > PI) x -= 2 * PI;
+    while (x < -PI) x += 2 * PI;
+    term = 1.0; // cos(0) = 1
+    for (n = 0; n < N; n++) {
+        sum += term;
+        if (fabs(term) < epsilon && n > 0) break;
+        // Р РµРєСѓСЂСЂРµРЅС‚РЅРѕРµ РІС‹С‡РёСЃР»РµРЅРёРµ
+        term = -term * x * x / ((2 * n + 1) * (2 * n + 2));
+    }
+    *used_attempt = n + 1;
+    return sum;
 }
-
-Result t_ln(double x, double acc, int N) {
-	double summ = x;
-	double a = x;
-	int k = 1;
-	for (int i = 1; i < N; i++) {
-		a = pow(-1, i)*pow(x, i)/i;
-		if (fabs(a) < acc && acc != 1) {
-			k += i;
-			break;
-		}
-		summ += a;
-	}
-	Result res = { summ, k };
-	return res;
+// Р СЏРґ РўРµР№Р»РѕСЂР° РґР»СЏ exp(x)
+double taylor_exp(double x, double epsilon, int N, int* used_attempt) {
+    double sum = 0.0;
+    double term = 1.0; // РїРµСЂРІС‹Р№ С‡Р»РµРЅ СЂСЏРґР°
+    int n = 0;
+    for (n = 0; n < N; n++) {
+        sum += term;
+        if (fabs(term) < epsilon && n > 0) break;
+        // Р РµРєСѓСЂСЂРµРЅС‚РЅРѕРµ РІС‹С‡РёСЃР»РµРЅРёРµ
+        term = term * x / (n + 1);
+    }
+    *used_attempt = n + 1;
+    return sum;
 }
-
-main() {
-	setlocale(LC_ALL, "Rus");
-	TaylorFunc taylor_func[] = { t_sin, t_cos, t_exp, t_ln };
-	MathFunc math_funct[] = { my_sin, my_cos, my_exp, my_ln };
-	int mode, funct;	
-	double x;
-	
-	do{
-		printf("Выберите режим: 1 - однократный расчет в заданной точке, 2 - серийный эксперимент.\n");
-		scanf_s("%d", &mode);
-		if (mode != 1 && mode != 2)
-			printf("Ошибка, введите 1 или 2\n");
-	} while (mode != 1 && mode != 2);
-
-	do {
-		printf("Выбери функцию: 1 - sin(x), 2 - cos(x), 3 - exp(x), 4 - ln(x+1)\n");
-		scanf_s("%d", &funct);
-		if (funct < 1 || funct > 4)
-			printf("Ошибка, выберите значение от 1 до 4\n");
-	} while (funct < 1 || funct > 4);
-	printf("Задайте точку х\n");
-	scanf_s("%lf", &x);
-	
-
-	if (mode == 1) {
-		int N;
-		double acc;
-		do {
-			printf("Задайте точность вычисления от 0.000001 и больше\n");
-			scanf_s("%lf", &acc);
-			if (acc >= 0.000001)
-				printf("Ошибка, выберите значение от 0.000001\n");
-		} while (acc >= 0.000001);
-		do {
-			printf("Задайте число элементов ряда от 1 до 1000\n");
-			scanf_s("%d", &N);
-			if (N < 1 || N>1000)
-				printf("Ошибка, выберите значение от 1 до 1000\n");
-		} while (N < 1 || N>1000);
-
-		printf("Эталонное значение: %lf\n", math_funct[funct](x));
-		Result a = taylor_func[funct](x, acc, N);
-		printf("Вычисленная оценка значения функции: %lf\n", a.value);
-		printf("Разница: %lf\n", fabs(math_funct[funct](x) - a.value));
-		printf("Количество слагаемых: %d\n", a.iterations);
-	}
-	else if (mode == 2) {
-		int Nmax = 0;
-		do {
-			printf("Задайте число элементов ряда от 1 до 25\n");
-			scanf_s("%d", &Nmax);
-			if (Nmax < 1 || Nmax>25)
-				printf("Ошибка, выберите значение от 1 до 25\n");
-		} while (Nmax < 1 || Nmax>25);
-		printf("Эталонное значение: %lf\n", math_funct[funct](x));
-		printf("Количество слагаемых | Вычисленная оценка значения | Разница между оценкой и эталонным значением\n");
-		for (int i = 0; i < Nmax; i++) {
-			Result a = taylor_func[funct](x, 1, i);
-			printf("%d | %lf | %lf \n", i, a.value, fabs(math_funct[funct](x) - a.value));
-		}
-	}
-
-
-	return 0;
+// Р СЏРґ РўРµР№Р»РѕСЂР° РґР»СЏ arccos(x)
+double taylor_arccos(double x, double epsilon, int N, int* used_attempt) {
+    // РџСЂРѕРІРµСЂРєР° РѕР±Р»Р°СЃС‚Рё РѕРїСЂРµРґРµР»РµРЅРёСЏ
+    if (x < -1.0 || x > 1.0) {
+        printf("РћС€РёР±РєР°: arccos(x) РѕРїСЂРµРґРµР»РµРЅ С‚РѕР»СЊРєРѕ РґР»СЏ x в€€ [-1, 1]\n");
+        *used_attempt = 0;
+        return NAN; // Not a Number
+    }
+    double sum = PI / 2.0;
+    double term = x;
+    int n = 0;
+    for (n = 0; n < N; n++) {
+        sum -= term;
+        if (fabs(term) < epsilon && n > 0) break;
+        // Р’С‹С‡РёСЃР»РµРЅРёРµ РєРѕСЌС„С„РёС†РёРµРЅС‚Р° Р±РёРЅРѕРјРёР°Р»СЊРЅРѕРіРѕ СЂСЏРґР°
+        double coeff = 1.0;
+        for (int k = 1; k <= n + 1; k++) {
+            coeff *= (double)(2 * k - 1) / (2 * k);
+        }
+        term = coeff * pow(x, 2 * n + 3) / (2 * n + 3);
+    }
+    *used_attempt = n + 1;
+    return sum;
+}
+void print_menu(void) {
+    printf("Р’С‹Р±РµСЂРёС‚Рµ С„СѓРЅРєС†РёСЋ:\n");
+    printf("1 - sin(x)\n");
+    printf("2 - cos(x)\n");
+    printf("3 - exp(x)\n");
+    printf("4 - arccos(x)\n");
+}
+int main(void) {
+    setlocale(LC_ALL, "Russian");
+    int mode;
+    printf("Р’С‹Р±РµСЂРёС‚Рµ СЂРµР¶РёРј СЂР°Р±РѕС‚С‹:\n");
+    printf("1 - РћРґРЅРѕРєСЂР°С‚РЅС‹Р№ СЂР°СЃС‡РµС‚\n");
+    printf("2 - РЎРµСЂРёР№РЅС‹Р№ СЌРєСЃРїРµСЂРёРјРµРЅС‚\n");
+    printf("Р’Р°С€ РІС‹Р±РѕСЂ: ");
+    scanf_s("%d", &mode);
+    print_menu();
+    int f;
+    printf("Р’РІРµРґРёС‚Рµ РЅРѕРјРµСЂ С„СѓРЅРєС†РёРё: ");
+    scanf_s("%d", &f);
+    // РЈРєР°Р·Р°С‚РµР»Рё РЅР° С„СѓРЅРєС†РёРё
+    double (*func)(double, double, int, int*) = NULL;
+    double (*ref_func)(double) = NULL;
+    // Р’С‹Р±РѕСЂ С„СѓРЅРєС†РёРё
+    switch (f) {
+    case 1:
+        func = taylor_sin;
+        ref_func = sin;
+        break;
+    case 2:
+        func = taylor_cos;
+        ref_func = cos;
+        break;
+    case 3:
+        func = taylor_exp;
+        ref_func = exp;
+        break;
+    case 4:
+        func = taylor_arccos;
+        ref_func = acos;
+        break;
+    default:
+        printf("РќРµРІРµСЂРЅС‹Р№ РЅРѕРјРµСЂ С„СѓРЅРєС†РёРё!\n");
+        return 1;
+    }
+    double x;
+    printf("Р’РІРµРґРёС‚Рµ x: ");
+    scanf_s("%lf", &x);
+    if (mode == 1) {
+        // РћРґРЅРѕРєСЂР°С‚РЅС‹Р№ СЂР°СЃС‡РµС‚
+        double epsilon;
+        int N;
+        printf("Р’РІРµРґРёС‚Рµ С‡РёСЃР»Рѕ СЌР»РµРјРµРЅС‚РѕРІ СЂСЏРґР° (1..1000): ");
+        scanf_s("%d", &N);
+        if (N < 1 || N > 1000) {
+            printf("РќРµРІРµСЂРЅРѕРµ С‡РёСЃР»Рѕ СЌР»РµРјРµРЅС‚РѕРІ!\n");
+            return 1;
+        }
+        printf("Р’РІРµРґРёС‚Рµ С‚РѕС‡РЅРѕСЃС‚СЊ (РЅР°РїСЂРёРјРµСЂ, 0.000001): ");
+        scanf_s("%lf", &epsilon);
+        if (epsilon <= 0) {
+            printf("РўРѕС‡РЅРѕСЃС‚СЊ РґРѕР»Р¶РЅР° Р±С‹С‚СЊ РїРѕР»РѕР¶РёС‚РµР»СЊРЅРѕР№!\n");
+            return 1;
+        }
+        int used = 0;
+        double value = func(x, epsilon, N, &used);
+        double ref = ref_func(x);
+        printf("\n=== Р РµР·СѓР»СЊС‚Р°С‚ ===\n");
+        printf("Р­С‚Р°Р»РѕРЅРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ:       %.15lf\n", ref);
+        printf("Р’С‹С‡РёСЃР»РµРЅРЅР°СЏ РѕС†РµРЅРєР°:       %.15lf\n", value);
+        printf("Р Р°Р·РЅРёС†Р°:                  %.15le\n", fabs(ref - value));
+        printf("РСЃРїРѕР»СЊР·РѕРІР°РЅРѕ СЃР»Р°РіР°РµРјС‹С…:   %d\n", used);
+        printf("РћС‚РЅРѕСЃРёС‚РµР»СЊРЅР°СЏ РїРѕРіСЂРµС€РЅРѕСЃС‚СЊ: %.15le\n", fabs((ref - value) / ref));
+    }
+    else if (mode == 2) {
+        // РЎРµСЂРёР№РЅС‹Р№ СЌРєСЃРїРµСЂРёРјРµРЅС‚
+        int NMax;
+        printf("Р’РІРµРґРёС‚Рµ С‡РёСЃР»Рѕ СЌРєСЃРїРµСЂРёРјРµРЅС‚РѕРІ (1..25): ");
+        scanf_s("%d", &NMax);
+        if (NMax < 1 || NMax > 25) {
+            printf("РќРµРІРµСЂРЅРѕРµ С‡РёСЃР»Рѕ СЌРєСЃРїРµСЂРёРјРµРЅС‚РѕРІ!\n");
+            return 1;
+        }
+        double ref = ref_func(x);
+        printf("\nР­С‚Р°Р»РѕРЅРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ: %.15lf\n", ref);
+        printf("\nРўР°Р±Р»РёС†Р°:\n");
+        printf(" N   | Р—РЅР°С‡РµРЅРёРµ                | Р Р°Р·РЅРёС†Р°          | РСЃРїРѕР»СЊР·РѕРІР°РЅРѕ\n");
+        printf("-------------------------------------------------------------\n");
+        for (int n = 1; n <= NMax; n++) {
+            int used = 0;
+            // РСЃРїРѕР»СЊР·СѓРµРј РјР°Р»РµРЅСЊРєСѓСЋ С‚РѕС‡РЅРѕСЃС‚СЊ РґР»СЏ СЃРµСЂРёР№РЅРѕРіРѕ СЌРєСЃРїРµСЂРёРјРµРЅС‚Р°
+            double val = func(x, 1e-15, n, &used);
+            printf("%3d | %.15lf | %.15le | %d\n",
+                n, val, fabs(ref - val), used);
+        }
+    }
+    else {
+        printf("РќРµРІРµСЂРЅС‹Р№ СЂРµР¶РёРј!\n");
+        return 1;
+    }
+    return 0;
 }
